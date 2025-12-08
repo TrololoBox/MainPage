@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
+from app.core.error_handlers import setup_exception_handlers
 from app.observability import setup_logging, setup_metrics, setup_tracing
 from app.db import Base, SessionLocal, engine
 from app.routes import admin, auth, feature_flags, feedback, newsletter, parent, teacher
@@ -15,6 +16,7 @@ setup_logging(settings.log_level)
 app = FastAPI(title="Excursion Consent API")
 setup_metrics(app)
 tracer_provider = setup_tracing(app, settings)
+setup_exception_handlers(app)
 
 with SessionLocal() as db:
     ensure_default_roles(db)

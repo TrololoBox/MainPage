@@ -61,7 +61,11 @@ def test_subscribe_newsletter_duplicate_email_returns_conflict(setup_db: Session
     second = client.post("/newsletter", json={"email": "user@example.com"})
 
     assert second.status_code == 409
-    assert second.json()["detail"] == "Subscription already exists"
+    assert second.json() == {
+        "code": "conflict",
+        "message": "Subscription already exists",
+        "details": None,
+    }
 
 
 def test_subscribe_newsletter_invalid_email(setup_db: Session):
@@ -69,3 +73,7 @@ def test_subscribe_newsletter_invalid_email(setup_db: Session):
     response = client.post("/newsletter", json={"email": "invalid", "name": "M"})
 
     assert response.status_code == 422
+    body = response.json()
+    assert body["code"] == "validation_error"
+    assert body["message"] == "Validation error"
+    assert isinstance(body.get("details"), list)

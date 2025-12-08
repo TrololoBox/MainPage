@@ -42,4 +42,7 @@ def test_submit_feedback_validates_message_length():
     response = client.post("/feedback", json=payload)
 
     assert response.status_code == 422
-    assert response.json()["detail"][0]["loc"][-1] == "message"
+    error = response.json()
+    assert error["code"] == "validation_error"
+    assert error["message"] == "Validation error"
+    assert error["details"][0]["loc"][-1] == "message"

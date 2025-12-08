@@ -59,7 +59,11 @@ def test_register_duplicate_email_returns_400(client):
     assert client.post("/auth/register", json=payload).status_code == 201
     duplicate = client.post("/auth/register", json=payload)
     assert duplicate.status_code == 400
-    assert duplicate.json()["detail"] == "User with this email already exists"
+    assert duplicate.json() == {
+        "code": "bad_request",
+        "message": "User with this email already exists",
+        "details": None,
+    }
 
 
 def test_login_success_and_invalid_password(client):
@@ -76,7 +80,11 @@ def test_login_success_and_invalid_password(client):
         "/auth/login", json={"email": register_payload["email"], "password": "wrong"}
     )
     assert bad_password.status_code == 401
-    assert bad_password.json()["detail"] == "Incorrect email or password"
+    assert bad_password.json() == {
+        "code": "unauthorized",
+        "message": "Incorrect email or password",
+        "details": None,
+    }
 
 
 def test_refresh_rotates_token_and_rejects_revoked(client):
@@ -91,7 +99,11 @@ def test_refresh_rotates_token_and_rejects_revoked(client):
 
     second_refresh = client.post("/auth/refresh", json={"refresh_token": refresh_token})
     assert second_refresh.status_code == 401
-    assert second_refresh.json()["detail"] == "Invalid refresh token"
+    assert second_refresh.json() == {
+        "code": "unauthorized",
+        "message": "Invalid refresh token",
+        "details": None,
+    }
 
     rotated_refresh = client.post("/auth/refresh", json={"refresh_token": new_refresh})
     assert rotated_refresh.status_code == 200
@@ -108,4 +120,8 @@ def test_logout_revokes_refresh_token(client):
 
     refresh_after_logout = client.post("/auth/refresh", json={"refresh_token": refresh_token})
     assert refresh_after_logout.status_code == 401
-    assert refresh_after_logout.json()["detail"] == "Invalid refresh token"
+    assert refresh_after_logout.json() == {
+        "code": "unauthorized",
+        "message": "Invalid refresh token",
+        "details": None,
+    }
