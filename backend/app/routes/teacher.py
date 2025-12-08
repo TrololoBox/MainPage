@@ -11,9 +11,9 @@ router = APIRouter(prefix="/teacher", tags=["teacher"])
 def create_excursion(
     payload: schemas.ExcursionCreate,
     db: Session = Depends(get_db),
-    current_user: models.User | None = None,
+    current_user_id: int | None = None,
 ):
-    creator_id = current_user.id if current_user else 1
+    creator_id = current_user_id or 1
     excursion = models.Excursion(**payload.dict(), created_by=creator_id)
     db.add(excursion)
     db.commit()
