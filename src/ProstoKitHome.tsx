@@ -22,6 +22,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { FeedbackForm } from "./components/FeedbackForm";
 import {
   Menu,
   Search,
@@ -444,6 +445,7 @@ export default function ProstoKitHome() {
               <a href="#catalog">Инструменты</a>
               <a href="#pricing">Цены</a>
               <a href="#how">Как это работает</a>
+              <a href="#contact">Консультация</a>
               <a href="#faq">FAQ</a>
             </nav>
             <div className="flex items-center gap-6">
@@ -888,6 +890,26 @@ export default function ProstoKitHome() {
                   Подробнее о приватности <ExternalLink size={16} />
                 </a>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" className="section">
+          <div className="container">
+            <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
+              <div className="card" style={{ padding: 24 }}>
+                <h2>Нужен подбор инструментов?</h2>
+                <p style={{ color: secondary, marginTop: 8, fontSize: 14, lineHeight: 1.5 }}>
+                  Опишите задачу: подготовка презентаций, массовая обработка изображений, автоматизация отчётов из Excel.
+                  Ответим в течение рабочего дня и покажем, как закрыть кейс в ProstoKit.
+                </p>
+                <ul style={{ marginTop: 12, color: secondary, fontSize: 14, lineHeight: 1.6 }}>
+                  <li>✓ Пришлём список инструментов под ваш сценарий.</li>
+                  <li>✓ Расскажем, как подключить команду и выкатить шаблоны.</li>
+                  <li>✓ Дадим 7 дней доступа без ограничений.</li>
+                </ul>
+              </div>
+              <FeedbackForm />
             </div>
           </div>
         </section>

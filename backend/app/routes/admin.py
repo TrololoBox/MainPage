@@ -4,9 +4,17 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app import models, schemas
+import io
+
+import pandas as pd
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from sqlalchemy.orm import Session
+
+from app import models, schemas
 from app.db import get_db
 from app.utils import get_password_hash
 from app.services import auth as auth_service
+from app.dependencies.auth import require_roles
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 

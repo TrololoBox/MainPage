@@ -117,3 +117,17 @@ class ReminderOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class FeedbackCreate(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+    email: EmailStr
+    message: str = Field(..., min_length=10, max_length=1000)
+
+
+class FeedbackOut(FeedbackCreate):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
