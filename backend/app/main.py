@@ -12,7 +12,10 @@ with SessionLocal() as db:
     ensure_default_roles(db)
 
 settings = get_settings()
+setup_logging(settings.log_level)
 app = FastAPI(title="Excursion Consent API")
+setup_metrics(app)
+tracer_provider = setup_tracing(app, settings)
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,3 +34,9 @@ app.include_router(parent.router)
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.on_event("shutdown")
+def shutdown_tracing() -> None:
+    if tracer_provider:
+        tracer_provider.shutdown()
