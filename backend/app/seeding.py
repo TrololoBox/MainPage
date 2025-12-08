@@ -6,8 +6,10 @@ from typing import Iterable
 from sqlalchemy.orm import Session
 
 from app import models
+from app.core.config import get_settings
 from app.db import Base, SessionLocal, engine
 from app.services.auth import ensure_role
+from app.services.feature_flags import ensure_feature_flags
 from app.utils import get_password_hash
 
 
@@ -127,6 +129,11 @@ def seed_excursions(db: Session) -> None:
     db.commit()
 
 
+def seed_feature_flags(db: Session) -> None:
+    settings = get_settings()
+    ensure_feature_flags(db, settings.feature_flags)
+
+
 def seed_all() -> None:
     Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:
@@ -134,6 +141,7 @@ def seed_all() -> None:
         seed_users(db)
         seed_students(db)
         seed_excursions(db)
+        seed_feature_flags(db)
 
 
 if __name__ == "__main__":

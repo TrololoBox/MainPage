@@ -144,3 +144,12 @@ class NewsletterOut(NewsletterCreate):
 
     class Config:
         from_attributes = True
+
+
+class FeatureFlagOut(BaseModel):
+    name: str
+    enabled: bool
+    description: str | None = None
+
+    class Config:
+        from_attributes = True

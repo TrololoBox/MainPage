@@ -24,6 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { FeedbackForm } from "./components/FeedbackForm";
 import { NewsletterForm } from "./components/NewsletterForm";
+import { useFeatureFlag, useFeatureFlags } from "./featureFlags/FeatureFlagProvider";
 import {
   Menu,
   Search,
@@ -359,6 +360,10 @@ export default function ProstoKitHome() {
   const [signinOpen, setSigninOpen] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [yearly, setYearly] = useState(false);
+  const { isLoading: featureFlagsLoading, lastUpdated: featureFlagsUpdatedAt } = useFeatureFlags();
+  const newsletterEnabled = useFeatureFlag("newsletter_form");
+  const feedbackEnabled = useFeatureFlag("feedback_form");
+  const betaBannerEnabled = useFeatureFlag("beta_tools_banner");
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(t);
@@ -541,6 +546,39 @@ export default function ProstoKitHome() {
             </div>
           </div>
         </section>
+
+        {betaBannerEnabled && (
+          <section className="section">
+            <div className="container">
+              <Card className="card" style={{ padding: 24 }}>
+                <div className="flex items-center justify-between gap-4 flex-wrap">
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <Badge variant="secondary">Beta</Badge>
+                    <div>
+                      <h3 style={{ fontSize: 18, fontWeight: 600 }}>Новый сценарий: пакетное сжатие файлов</h3>
+                      <p style={{ color: secondary, marginTop: 4, fontSize: 14 }}>
+                        Фича доступна ограниченно и включена через фичефлаг. Оставьте обратную связь — соберём метрики и
+                        включим по умолчанию.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {featureFlagsLoading ? (
+                      <Skeleton className="h-6 w-48" />
+                    ) : (
+                      <p style={{ color: secondary, fontSize: 12 }}>
+                        Флаги обновлены: {featureFlagsUpdatedAt?.toLocaleString() ?? "только что"}
+                      </p>
+                    )}
+                    <Button variant="outline" onClick={() => track("beta_flag_cta", { feature: "batch_compress" })}>
+                      Записаться в бета
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </section>
+        )}
 
         <section id="catalog" className="section" ref={catalogRef}>
           <div className="container">
@@ -910,7 +948,31 @@ export default function ProstoKitHome() {
                   <li>✓ Кейсы пользователей с готовыми рецептами.</li>
                 </ul>
               </div>
-              <NewsletterForm />
+              {newsletterEnabled ? (
+                <NewsletterForm />
+              ) : (
+                <Card className="card" style={{ padding: 24 }}>
+                  <CardHeader>
+                    <CardTitle>Рассылка приостановлена</CardTitle>
+                    <CardDescription>
+                      Фича отключена фичефлагом. Мы обновим блок после проверки метрик или включим его по вашему домену.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {featureFlagsLoading ? (
+                      <div className="grid gap-3">
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                    ) : (
+                      <p style={{ color: secondary, fontSize: 14 }}>
+                        Проверьте конфигурацию флага newsletter_form или включите его в админке, чтобы снова собирать лиды.
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </section>
@@ -930,7 +992,26 @@ export default function ProstoKitHome() {
                   <li>✓ Дадим 7 дней доступа без ограничений.</li>
                 </ul>
               </div>
-              <FeedbackForm />
+              {feedbackEnabled ? (
+                <FeedbackForm />
+              ) : (
+                <Card className="card" style={{ padding: 24 }}>
+                  <CardHeader>
+                    <CardTitle>Форма обратной связи выключена</CardTitle>
+                    <CardDescription>Сбор заявок временно недоступен. Проверьте фичефлаг feedback_form.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {featureFlagsLoading ? (
+                      <Skeleton className="h-32 w-full" />
+                    ) : (
+                      <div className="flex flex-col gap-2 text-sm" style={{ color: secondary }}>
+                        <p>Мы продолжаем принимать запросы через support@prostokit.io.</p>
+                        <p>Как только флаг будет включен, форма автоматически вернётся на страницу без релиза фронтенда.</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </section>
