@@ -18,6 +18,30 @@ class Settings:
     otlp_endpoint: str = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
     enable_tracing: bool = os.getenv("ENABLE_TRACING", "true").lower() == "true"
 
+    @validator("database_url")
+    def validate_database_url(cls, value: str) -> str:  # noqa: N805
+        if not value:
+            raise ValueError("DATABASE_URL must not be empty")
+        return value
+
+    @validator("secret_key")
+    def validate_secret_key(cls, value: str) -> str:  # noqa: N805
+        if len(value) < 16:
+            raise ValueError("SECRET_KEY must be at least 16 characters long")
+        return value
+
+    @validator("pdf_storage_root")
+    def validate_pdf_storage_root(cls, value: str) -> str:  # noqa: N805
+        if not value.strip():
+            raise ValueError("PDF_STORAGE_ROOT must not be empty")
+        return value
+
+    @validator("access_token_expire_minutes", "reminder_hours")
+    def validate_positive_int(cls, value: int, field):  # noqa: N805
+        if value <= 0:
+            raise ValueError(f"{field.name} must be greater than zero")
+        return value
+
 
 @lru_cache
 def get_settings() -> Settings:

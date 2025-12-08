@@ -11,6 +11,20 @@ npm run dev
 ```
 Открой `http://localhost:5173`.
 
+### Backend (FastAPI)
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+alembic upgrade head
+uvicorn app.main:app --reload
+```
+
+- Все конфиги перечислены в `backend/.env.example` и валидируются при запуске.
+- В CI/CD секреты можно забирать из HashiCorp Vault или AWS Secrets Manager (см. workflow в `.github/workflows/ci.yml`).
+
 ## Где править
 - Главная: `src/ProstoKitHome.tsx` (контент и логика).
 - Глобальные стили: `src/styles/index.css` (переменные, сетка, компоненты).

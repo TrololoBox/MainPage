@@ -7,8 +7,11 @@
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+cp .env.example .env
 alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-Переменные окружения см. в `.env.example`. SQLite используется по умолчанию (`./data.db`).
+- Все переменные окружения перечислены в `.env.example`.
+- Конфигурация валидируется при загрузке: пустые значения и короткий `SECRET_KEY` вызывают ошибку.
+- SQLite используется по умолчанию (`./data.db`), но `DATABASE_URL` можно заменить на PostgreSQL/MySQL.
