@@ -2,11 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.db import Base, engine
-from app.observability import setup_logging, setup_metrics, setup_tracing
-from app.routes import admin, parent, teacher
+from app.db import Base, SessionLocal, engine
+from app.routes import admin, auth, parent, teacher
+from app.services.auth import ensure_default_roles
 
 Base.metadata.create_all(bind=engine)
+
+with SessionLocal() as db:
+    ensure_default_roles(db)
 
 settings = get_settings()
 setup_logging(settings.log_level)
@@ -23,6 +26,7 @@ app.add_middleware(
 )
 
 app.include_router(admin.router)
+app.include_router(auth.router)
 app.include_router(teacher.router)
 app.include_router(parent.router)
 
