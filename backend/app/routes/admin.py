@@ -24,7 +24,11 @@ def create_user(payload: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/students/import", response_model=list[schemas.StudentOut])
-def import_students(file: UploadFile = File(...), db: Session = Depends(get_db)):
+def import_students(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_roles(models.UserRole.admin)),
+):
     try:
         content = file.file.read()
         df = (
