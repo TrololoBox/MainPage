@@ -254,6 +254,57 @@ p {
   font-size: 12px;
 }
 
+/* Feedback form */
+.feedback-card {
+  box-shadow: var(--shadow-card);
+}
+
+.feedback-form {
+  display: grid;
+  gap: 12px;
+}
+
+.form-field {
+  display: grid;
+  gap: 6px;
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.feedback-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.error-text {
+  color: #b91c1c;
+  font-size: 13px;
+  margin: 4px 0;
+}
+
+.success-text {
+  color: #15803d;
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+.muted,
+.hint {
+  color: var(--secondary);
+  font-size: 13px;
+  margin: 0;
+}
+
+.hint {
+  margin-top: 4px;
+}
+
 /* Footer table layout adjustments on small screens */
 @media (max-width: 768px) {
   .grid-3 {

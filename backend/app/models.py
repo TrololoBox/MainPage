@@ -99,6 +99,16 @@ class Reminder(Base):
     excursion = relationship("Excursion")
 
 
+class Feedback(Base):
+    __tablename__ = "feedback"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    message = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
 
