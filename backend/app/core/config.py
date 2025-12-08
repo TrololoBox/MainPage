@@ -19,6 +19,8 @@ class Settings:
     service_name: str = os.getenv("SERVICE_NAME", "excursion-consent-api")
     otlp_endpoint: str = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
     enable_tracing: bool = os.getenv("ENABLE_TRACING", "true").lower() == "true"
+    redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+    cache_ttl_seconds: int = int(os.getenv("CACHE_TTL_SECONDS", "60"))
     feature_flags: Dict[str, bool] = None
 
     def __post_init__(self):
@@ -69,7 +71,7 @@ class Settings:
             raise ValueError("PDF_STORAGE_ROOT must not be empty")
         return value
 
-    @validator("access_token_expire_minutes", "reminder_hours")
+    @validator("access_token_expire_minutes", "reminder_hours", "cache_ttl_seconds")
     def validate_positive_int(cls, value: int, field):  # noqa: N805
         if value <= 0:
             raise ValueError(f"{field.name} must be greater than zero")
