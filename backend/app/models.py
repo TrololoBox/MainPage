@@ -109,6 +109,15 @@ class Feedback(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class NewsletterSubscription(Base):
+    __tablename__ = "newsletter_subscriptions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, nullable=False, unique=True, index=True)
+    name = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
 
