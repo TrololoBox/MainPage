@@ -209,7 +209,9 @@ export default function ProstoKitHome() {
               <div style={{ gridColumn: 'span 6' }}>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="" style={{fontSize:16}}>Быстрый мокап интерфейса</CardTitle>
+                    <CardTitle className="">
+                      <span style={{ fontSize: 16 }}>Быстрый мокап интерфейса</span>
+                    </CardTitle>
                     <CardDescription style={{ color: secondary }}>Лёгкий визуал для LCP ≤ 2.5s</CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -276,7 +278,9 @@ export default function ProstoKitHome() {
                     <div className="flex items-center" style={{gap:12}}>
                       <div style={{width:40,height:40,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center', background: '#F3F4F6' }}>{tool.icon}</div>
                       <div style={{flex:1}}>
-                        <CardTitle className="" style={{fontSize:18}}>{tool.name}</CardTitle>
+                        <CardTitle className="">
+                          <span style={{ fontSize: 18 }}>{tool.name}</span>
+                        </CardTitle>
                         <CardDescription style={{ fontSize:12, color: secondary }}>{tool.category}</CardDescription>
                       </div>
                       {tool.pro && <Badge style={{ background: accent, color:'#fff' }}>В подписке</Badge>}
