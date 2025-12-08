@@ -12,7 +12,9 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 
 @router.post("/users", response_model=schemas.UserOut)
 def create_user(payload: schemas.UserCreate, db: Session = Depends(get_db)):
-    user = models.User(email=payload.email, password_hash=get_password_hash(payload.password), role=payload.role)
+    user = models.User(
+        email=payload.email, password_hash=get_password_hash(payload.password), role=payload.role
+    )
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -23,7 +25,11 @@ def create_user(payload: schemas.UserCreate, db: Session = Depends(get_db)):
 def import_students(file: UploadFile = File(...), db: Session = Depends(get_db)):
     try:
         content = file.file.read()
-        df = pd.read_excel(io.BytesIO(content)) if file.filename.endswith(".xlsx") else pd.read_csv(io.BytesIO(content))
+        df = (
+            pd.read_excel(io.BytesIO(content))
+            if file.filename.endswith(".xlsx")
+            else pd.read_csv(io.BytesIO(content))
+        )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Ошибка чтения файла: {e}")
     students = []
