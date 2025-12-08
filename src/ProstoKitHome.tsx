@@ -492,12 +492,10 @@ export default function ProstoKitHome() {
               <div style={{ gridColumn: "span 6" }}>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="" style={{ fontSize: 16 }}>
-                      Быстрый мокап интерфейса
+                    <CardTitle className="">
+                      <span style={{ fontSize: 16 }}>Быстрый мокап интерфейса</span>
                     </CardTitle>
-                    <CardDescription style={{ color: secondary }}>
-                      Лёгкий визуал для LCP ≤ 2.5s
-                    </CardDescription>
+                    <CardDescription style={{ color: secondary }}>Лёгкий визуал для LCP ≤ 2.5s</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-3">
@@ -592,124 +590,48 @@ export default function ProstoKitHome() {
               </div>
             </div>
 
-            <div
-              className="grid"
-              style={{
-                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-                gap: 24,
-                marginTop: 24,
-              }}
-            >
-              {loading
-                ? Array.from({ length: 6 }).map((_, i) => (
-                    <Card key={i}>
-                      <CardContent>
-                        <div className="flex items-center gap-6">
-                          <div
-                            style={{ width: 40, height: 40, borderRadius: 12, background: "#eee" }}
-                          />
-                          <div style={{ flex: 1 }}>
-                            <div
-                              style={{
-                                height: 14,
-                                width: "66%",
-                                background: "#eee",
-                                borderRadius: 6,
-                              }}
-                            />
-                            <div
-                              style={{
-                                height: 12,
-                                width: "50%",
-                                background: "#eee",
-                                borderRadius: 6,
-                                marginTop: 8,
-                              }}
-                            />
-                          </div>
-                        </div>
-                        <div
-                          style={{ height: 12, background: "#eee", borderRadius: 6, marginTop: 16 }}
-                        />
-                        <div
-                          style={{
-                            height: 12,
-                            width: "70%",
-                            background: "#eee",
-                            borderRadius: 6,
-                            marginTop: 8,
-                          }}
-                        />
-                        <div
-                          className="flex items-center justify-between"
-                          style={{ marginTop: 16 }}
-                        >
-                          <div
-                            style={{ height: 24, width: 80, background: "#eee", borderRadius: 999 }}
-                          />
-                          <div
-                            style={{ height: 36, width: 120, background: "#eee", borderRadius: 12 }}
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                : filtered.map((tool) => (
-                    <Card key={tool.id}>
-                      <CardHeader>
-                        <div className="flex items-center" style={{ gap: 12 }}>
-                          <div
-                            style={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: 12,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              background: "#F3F4F6",
-                            }}
-                          >
-                            {tool.icon}
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <CardTitle className="" style={{ fontSize: 18 }}>
-                              {tool.name}
-                            </CardTitle>
-                            <CardDescription style={{ fontSize: 12, color: secondary }}>
-                              {tool.category}
-                            </CardDescription>
-                          </div>
-                          {tool.pro && (
-                            <Badge style={{ background: accent, color: "#fff" }}>В подписке</Badge>
-                          )}
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <ul style={{ fontSize: 14, color: secondary, display: "grid", gap: 6 }}>
-                          {tool.bullets.map((b, i) => (
-                            <li
-                              key={i}
-                              style={{ display: "flex", gap: 8, alignItems: "flex-start" }}
-                            >
-                              <Check size={16} color={accent} />
-                              {b}
-                            </li>
-                          ))}
-                        </ul>
-                        <div
-                          className="flex items-center justify-between"
-                          style={{ marginTop: 12 }}
-                        >
-                          <div style={{ fontSize: 12, color: secondary }}>
-                            Теги: {tool.tags.join(", ")}
-                          </div>
-                          <Button onClick={() => openTool(tool.id, tool.pro)}>
-                            Открыть <ChevronRight size={16} style={{ marginLeft: 6 }} />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+            <div className="grid" style={{ gridTemplateColumns:'repeat(auto-fill, minmax(280px, 1fr))', gap:24, marginTop:24 }}>
+              {loading ? Array.from({length:6}).map((_,i)=>(
+                <Card key={i}><CardContent>
+                  <div className="flex items-center gap-6">
+                    <div style={{width:40,height:40,borderRadius:12,background:'#eee'}} />
+                    <div style={{flex:1}}>
+                      <div style={{height:14, width:'66%', background:'#eee', borderRadius:6}}/>
+                      <div style={{height:12, width:'50%', background:'#eee', borderRadius:6, marginTop:8}}/>
+                    </div>
+                  </div>
+                  <div style={{height:12, background:'#eee', borderRadius:6, marginTop:16}}/>
+                  <div style={{height:12, width:'70%', background:'#eee', borderRadius:6, marginTop:8}}/>
+                  <div className="flex items-center justify-between" style={{marginTop:16}}>
+                    <div style={{height:24,width:80,background:'#eee',borderRadius:999}} />
+                    <div style={{height:36,width:120,background:'#eee',borderRadius:12}} />
+                  </div>
+                </CardContent></Card>
+              )) : filtered.map((tool)=>(
+                <Card key={tool.id}>
+                  <CardHeader>
+                    <div className="flex items-center" style={{gap:12}}>
+                      <div style={{width:40,height:40,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center', background: '#F3F4F6' }}>{tool.icon}</div>
+                      <div style={{flex:1}}>
+                        <CardTitle className="">
+                          <span style={{ fontSize: 18 }}>{tool.name}</span>
+                        </CardTitle>
+                        <CardDescription style={{ fontSize:12, color: secondary }}>{tool.category}</CardDescription>
+                      </div>
+                      {tool.pro && <Badge style={{ background: accent, color:'#fff' }}>В подписке</Badge>}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <ul style={{fontSize:14, color: secondary, display:'grid', gap:6}}>
+                      {tool.bullets.map((b, i)=>(<li key={i} style={{display:'flex',gap:8,alignItems:'flex-start'}}><Check size={16} color={accent}/>{b}</li>))}
+                    </ul>
+                    <div className="flex items-center justify-between" style={{ marginTop:12 }}>
+                      <div style={{ fontSize:12, color: secondary }}>Теги: {tool.tags.join(", ")}</div>
+                      <Button onClick={()=>openTool(tool.id, tool.pro)}>Открыть <ChevronRight size={16} style={{marginLeft:6}}/></Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
 
             {filtered.length === 0 && !loading && (
