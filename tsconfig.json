@@ -23,6 +23,8 @@
     "strict": true
   },
   "include": [
-    "src"
+    "src",
+    "frontend/tests",
+    "jest.config.cjs"
   ]
 }
