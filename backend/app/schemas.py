@@ -131,3 +131,16 @@ class FeedbackOut(FeedbackCreate):
 
     class Config:
         from_attributes = True
+
+
+class NewsletterCreate(BaseModel):
+    email: EmailStr
+    name: str | None = Field(default=None, min_length=2, max_length=100)
+
+
+class NewsletterOut(NewsletterCreate):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

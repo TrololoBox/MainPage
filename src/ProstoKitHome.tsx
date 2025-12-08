@@ -23,6 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { FeedbackForm } from "./components/FeedbackForm";
+import { NewsletterForm } from "./components/NewsletterForm";
 import {
   Menu,
   Search,
@@ -890,6 +891,26 @@ export default function ProstoKitHome() {
                   Подробнее о приватности <ExternalLink size={16} />
                 </a>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="section">
+          <div className="container">
+            <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
+              <div className="card" style={{ padding: 24 }}>
+                <h2>Апдейты и бета-фичи</h2>
+                <p style={{ color: secondary, marginTop: 8, fontSize: 14, lineHeight: 1.5 }}>
+                  Подпишитесь на короткую рассылку: делимся новыми инструментами, приглашаем в бета-тесты и
+                  отправляем подсказки по автоматизации. Только по делу.
+                </p>
+                <ul style={{ marginTop: 12, color: secondary, fontSize: 14, lineHeight: 1.6 }}>
+                  <li>✓ Анонсы свежих утилит и улучшений UX.</li>
+                  <li>✓ Ранний доступ к бета-функциям и опросам.</li>
+                  <li>✓ Кейсы пользователей с готовыми рецептами.</li>
+                </ul>
+              </div>
+              <NewsletterForm />
             </div>
           </div>
         </section>
