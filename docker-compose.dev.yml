@@ -1,0 +1,7 @@
+version: "3.9"
+
+services:
+  backend:
+    environment:
+      AUTO_SEED: "1"
+      RUN_MIGRATIONS: "1"
