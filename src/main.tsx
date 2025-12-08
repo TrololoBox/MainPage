@@ -1,4 +1,3 @@
-
 import React from "react";
 import ReactDOM from "react-dom/client";
 import ProstoKitHome from "./ProstoKitHome";
@@ -6,5 +5,5 @@ import ProstoKitHome from "./ProstoKitHome";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ProstoKitHome />
-  </React.StrictMode>
+  </React.StrictMode>,
 );

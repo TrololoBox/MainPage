@@ -8,7 +8,11 @@ router = APIRouter(prefix="/teacher", tags=["teacher"])
 
 
 @router.post("/excursions", response_model=schemas.ExcursionOut)
-def create_excursion(payload: schemas.ExcursionCreate, db: Session = Depends(get_db), current_user: models.User | None = None):
+def create_excursion(
+    payload: schemas.ExcursionCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User | None = None,
+):
     creator_id = current_user.id if current_user else 1
     excursion = models.Excursion(**payload.dict(), created_by=creator_id)
     db.add(excursion)
