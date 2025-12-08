@@ -11,66 +11,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Load secrets from HashiCorp Vault (optional)
-        id: vault
-        if: ${{ secrets.VAULT_ADDR != '' && secrets.VAULT_ROLE_ID != '' && secrets.VAULT_SECRET_ID != '' }}
-        uses: hashicorp/vault-action@v2
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          url: ${{ secrets.VAULT_ADDR }}
-          method: approle
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
-          secrets: |
-            kv/data/mainpage DATABASE_URL | DATABASE_URL ;
-            kv/data/mainpage SECRET_KEY | SECRET_KEY ;
-            kv/data/mainpage ALGORITHM | ALGORITHM ;
-            kv/data/mainpage ACCESS_TOKEN_EXPIRE_MINUTES | ACCESS_TOKEN_EXPIRE_MINUTES ;
-            kv/data/mainpage PDF_STORAGE_ROOT | PDF_STORAGE_ROOT ;
-            kv/data/mainpage REMINDER_HOURS | REMINDER_HOURS
+          python-version: '3.11'
 
-      - name: Load secrets from AWS Secrets Manager (optional)
-        id: aws_sm
-        if: ${{ steps.vault.outcome == 'skipped' && secrets.AWS_SM_SECRET_ID != '' }}
-        uses: aws-actions/aws-secretsmanager-get-secret-value@v1
-        with:
-          secret-id: ${{ secrets.AWS_SM_SECRET_ID }}
-          aws-region: ${{ secrets.AWS_REGION }}
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      - name: Prepare backend environment file
-        if: ${{ steps.vault.outputs.DATABASE_URL != '' || steps.aws_sm.outputs.secret-string != '' }}
+      - name: Install backend dependencies
+        working-directory: backend
         run: |
-          if [ -n "${{ steps.aws_sm.outputs.secret-string }}" ]; then
-            python - <<'PY'
-import json
-import pathlib
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
 
-secret = json.loads('''${{ steps.aws_sm.outputs.secret-string }}''')
-env_path = pathlib.Path("backend/.env")
-keys = [
-    "DATABASE_URL",
-    "SECRET_KEY",
-    "ALGORITHM",
-    "ACCESS_TOKEN_EXPIRE_MINUTES",
-    "PDF_STORAGE_ROOT",
-    "REMINDER_HOURS",
-]
-lines = [f"{key}={secret[key]}" for key in keys if key in secret]
-env_path.write_text("\n".join(lines))
-print(f"Wrote {env_path} from AWS Secrets Manager")
-PY
-          else
-            cat <<'EOF' > backend/.env
-DATABASE_URL=${{ steps.vault.outputs.DATABASE_URL }}
-SECRET_KEY=${{ steps.vault.outputs.SECRET_KEY }}
-ALGORITHM=${{ steps.vault.outputs.ALGORITHM }}
-ACCESS_TOKEN_EXPIRE_MINUTES=${{ steps.vault.outputs.ACCESS_TOKEN_EXPIRE_MINUTES }}
-PDF_STORAGE_ROOT=${{ steps.vault.outputs.PDF_STORAGE_ROOT }}
-REMINDER_HOURS=${{ steps.vault.outputs.REMINDER_HOURS }}
-EOF
-          fi
+      - name: Run backend tests with coverage
+        working-directory: backend
+        run: pytest
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -79,10 +33,13 @@ EOF
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Lint
         run: npm run lint
+
+      - name: Run frontend tests with coverage
+        run: npm test
 
       - name: Build
         run: npm run build

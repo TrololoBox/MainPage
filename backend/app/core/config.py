@@ -1,18 +1,22 @@
+import os
+from dataclasses import dataclass
 from functools import lru_cache
+from dataclasses import dataclass
 
-from pydantic import BaseSettings, Field, validator
 
-
-class Settings(BaseSettings):
-    database_url: str = Field("sqlite:///./data.db", env="DATABASE_URL")
-    secret_key: str = Field("change-me", env="SECRET_KEY")
-    algorithm: str = Field("HS256", env="ALGORITHM")
-    access_token_expire_minutes: int = Field(120, env="ACCESS_TOKEN_EXPIRE_MINUTES")
-    pdf_storage_root: str = Field("archive", env="PDF_STORAGE_ROOT")
-    reminder_hours: int = Field(24, env="REMINDER_HOURS")
-
-    class Config:
-        env_file = ".env"
+@dataclass
+class Settings:
+    database_url: str = os.getenv("DATABASE_URL", "sqlite:///./data.db")
+    secret_key: str = os.getenv("SECRET_KEY", "change-me")
+    algorithm: str = os.getenv("ALGORITHM", "HS256")
+    access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "120"))
+    refresh_token_expire_days: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "14"))
+    pdf_storage_root: str = os.getenv("PDF_STORAGE_ROOT", "archive")
+    reminder_hours: int = int(os.getenv("REMINDER_HOURS", "24"))
+    log_level: str = os.getenv("LOG_LEVEL", "INFO")
+    service_name: str = os.getenv("SERVICE_NAME", "excursion-consent-api")
+    otlp_endpoint: str = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
+    enable_tracing: bool = os.getenv("ENABLE_TRACING", "true").lower() == "true"
 
     @validator("database_url")
     def validate_database_url(cls, value: str) -> str:  # noqa: N805
