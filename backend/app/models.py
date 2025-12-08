@@ -10,11 +10,21 @@ from app.db import Base
 class UserRole(str, enum.Enum):
     admin = "admin"
     teacher = "teacher"
+    parent = "parent"
 
 
 class SignatureMode(str, enum.Enum):
     vector = "vector"
     pdf = "pdf"
+
+
+class Role(Base):
+    __tablename__ = "roles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(Enum(UserRole), unique=True, nullable=False)
+
+    users = relationship("User", back_populates="role")
 
 
 class User(Base):
@@ -23,8 +33,13 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
-    role = Column(Enum(UserRole), nullable=False)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    role = relationship("Role", back_populates="users")
+    refresh_tokens = relationship(
+        "RefreshToken", back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class Student(Base):
@@ -82,3 +97,16 @@ class Reminder(Base):
 
     student = relationship("Student")
     excursion = relationship("Excursion")
+
+
+class RefreshToken(Base):
+    __tablename__ = "refresh_tokens"
+
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(String, unique=True, index=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    revoked = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="refresh_tokens")

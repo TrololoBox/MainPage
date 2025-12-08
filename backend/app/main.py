@@ -2,13 +2,20 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.db import Base, engine
-from app.routes import admin, teacher, parent
+from app.db import Base, SessionLocal, engine
+from app.routes import admin, auth, parent, teacher
+from app.services.auth import ensure_default_roles
 
 Base.metadata.create_all(bind=engine)
 
+with SessionLocal() as db:
+    ensure_default_roles(db)
+
 settings = get_settings()
+setup_logging(settings.log_level)
 app = FastAPI(title="Excursion Consent API")
+setup_metrics(app)
+tracer_provider = setup_tracing(app, settings)
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,6 +26,7 @@ app.add_middleware(
 )
 
 app.include_router(admin.router)
+app.include_router(auth.router)
 app.include_router(teacher.router)
 app.include_router(parent.router)
 
@@ -26,3 +34,9 @@ app.include_router(parent.router)
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.on_event("shutdown")
+def shutdown_tracing() -> None:
+    if tracer_provider:
+        tracer_provider.shutdown()

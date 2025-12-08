@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr
-from app.models import SignatureMode, UserRole
+from pydantic import BaseModel, EmailStr, Field, field_serializer, field_validator
+from app.models import Role, SignatureMode, UserRole
 
 
 class Token(BaseModel):
@@ -10,10 +12,19 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
+class TokenPair(Token):
+    refresh_token: str
+
+
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
     role: UserRole
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
 
 
 class UserOut(BaseModel):
@@ -24,6 +35,26 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+    @field_validator("role", mode="before")
+    def parse_role(cls, value: UserRole | Role):
+        if isinstance(value, Role):
+            return value.name
+        return value
+
+    @field_serializer("role")
+    def serialize_role(self, value: UserRole | Role):
+        if isinstance(value, Role):
+            return value.name
+        return value
+
+
+class AuthResponse(TokenPair):
+    user: "UserOut" = Field(..., description="Authenticated user")
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
 
 
 class StudentCreate(BaseModel):

@@ -1,3 +1,3 @@
-from . import admin, teacher, parent
+from . import admin, auth, teacher, parent
 
-__all__ = ["admin", "teacher", "parent"]
+__all__ = ["admin", "auth", "teacher", "parent"]

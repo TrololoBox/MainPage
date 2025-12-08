@@ -6,12 +6,20 @@ from app import models, schemas
 from app.db import get_db
 from app.services.pdf import render_pdf_template
 from app.services.storage import save_pdf
+from app.dependencies.auth import require_roles
 
 router = APIRouter(prefix="/parent", tags=["parent"])
 
 
 @router.get("/signatures/{excursion_id}/{student_id}", response_model=list[schemas.SignatureOut])
-def list_signatures(excursion_id: int, student_id: int, db: Session = Depends(get_db)):
+def list_signatures(
+    excursion_id: int,
+    student_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_roles(models.UserRole.parent, models.UserRole.admin)
+    ),
+):
     return (
         db.query(models.Signature).filter_by(excursion_id=excursion_id, student_id=student_id).all()
     )
@@ -19,7 +27,13 @@ def list_signatures(excursion_id: int, student_id: int, db: Session = Depends(ge
 
 @router.post("/sign/{excursion_id}/{student_id}", response_model=schemas.SignatureOut)
 def sign_excursion(
-    excursion_id: int, student_id: int, payload: schemas.SignatureIn, db: Session = Depends(get_db)
+    excursion_id: int,
+    student_id: int,
+    payload: schemas.SignatureIn,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_roles(models.UserRole.parent, models.UserRole.admin)
+    ),
 ):
     excursion = db.get(models.Excursion, excursion_id)
     student = db.get(models.Student, student_id)

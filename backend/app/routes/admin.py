@@ -6,14 +6,16 @@ from sqlalchemy.orm import Session
 from app import models, schemas
 from app.db import get_db
 from app.utils import get_password_hash
+from app.services import auth as auth_service
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
 @router.post("/users", response_model=schemas.UserOut)
 def create_user(payload: schemas.UserCreate, db: Session = Depends(get_db)):
+    role = auth_service.ensure_role(db, payload.role)
     user = models.User(
-        email=payload.email, password_hash=get_password_hash(payload.password), role=payload.role
+        email=payload.email, password_hash=get_password_hash(payload.password), role=role
     )
     db.add(user)
     db.commit()
@@ -22,7 +24,11 @@ def create_user(payload: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/students/import", response_model=list[schemas.StudentOut])
-def import_students(file: UploadFile = File(...), db: Session = Depends(get_db)):
+def import_students(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_roles(models.UserRole.admin)),
+):
     try:
         content = file.file.read()
         df = (
