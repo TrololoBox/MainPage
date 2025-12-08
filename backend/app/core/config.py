@@ -1,6 +1,8 @@
 import os
 from dataclasses import dataclass
 from functools import lru_cache
+import json
+from typing import Dict
 from pydantic import validator
 
 
@@ -17,6 +19,37 @@ class Settings:
     service_name: str = os.getenv("SERVICE_NAME", "excursion-consent-api")
     otlp_endpoint: str = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
     enable_tracing: bool = os.getenv("ENABLE_TRACING", "true").lower() == "true"
+    feature_flags: Dict[str, bool] = None
+
+    def __post_init__(self):
+        self.feature_flags = self._parse_feature_flags(os.getenv("FEATURE_FLAGS"))
+
+    @staticmethod
+    def _parse_feature_flags(raw_flags: str | None) -> Dict[str, bool]:
+        defaults = {
+            "newsletter_form": True,
+            "feedback_form": True,
+            "beta_tools_banner": False,
+        }
+
+        if not raw_flags:
+            return defaults
+
+        try:
+            parsed = json.loads(raw_flags)
+        except json.JSONDecodeError as exc:
+            raise ValueError("FEATURE_FLAGS must be valid JSON") from exc
+
+        if not isinstance(parsed, dict):
+            raise ValueError("FEATURE_FLAGS must be a JSON object with boolean values")
+
+        cleaned: Dict[str, bool] = {}
+        for key, value in parsed.items():
+            if not isinstance(value, bool):
+                raise ValueError("All FEATURE_FLAGS values must be boolean")
+            cleaned[key] = value
+
+        return {**defaults, **cleaned}
 
     @validator("database_url")
     def validate_database_url(cls, value: str) -> str:  # noqa: N805
