@@ -10,6 +10,7 @@ from app.db import Base
 class UserRole(str, enum.Enum):
     admin = "admin"
     teacher = "teacher"
+    parent = "parent"
 
 
 class SignatureMode(str, enum.Enum):
