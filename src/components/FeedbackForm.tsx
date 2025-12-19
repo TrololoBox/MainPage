@@ -15,6 +15,9 @@ export function FeedbackForm() {
   const [status, setStatus] = useState<FormState>("idle");
   const [error, setError] = useState("");
 
+  const errorMessageId = "feedback-error";
+  const statusMessageId = "feedback-status";
+
   const isSubmitDisabled = useMemo(
     () =>
       status === "submitting" ||
@@ -41,9 +44,13 @@ export function FeedbackForm() {
       });
 
       if (!response.ok) {
-        const body = await response.json();
-        const fieldError = body?.detail?.[0]?.msg ?? "Не удалось отправить заявку. Попробуйте ещё раз.";
-        setError(fieldError);
+        try {
+          const body = await response.json();
+          const fieldError = body?.detail?.[0]?.msg ?? "Не удалось отправить заявку. Попробуйте ещё раз.";
+          setError(fieldError);
+        } catch {
+          setError("Сервис временно недоступен. Попробуйте позже или напишите в поддержку.");
+        }
         setStatus("error");
         return;
       }
@@ -63,7 +70,7 @@ export function FeedbackForm() {
         <CardDescription>Оставьте контакты — пришлём подборку инструментов и короткое демо.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="feedback-form" onSubmit={handleSubmit}>
+        <form className="feedback-form" onSubmit={handleSubmit} aria-busy={status === "submitting"}>
           <div className="grid gap-3">
             <div className="form-field">
               <Label htmlFor="name">Имя</Label>
@@ -77,6 +84,8 @@ export function FeedbackForm() {
                 }}
                 placeholder="Мария"
                 required
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? errorMessageId : undefined}
               />
             </div>
             <div className="form-field">
@@ -92,6 +101,8 @@ export function FeedbackForm() {
                 }}
                 placeholder="you@example.com"
                 required
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? errorMessageId : undefined}
               />
             </div>
             <div className="form-field">
@@ -108,13 +119,21 @@ export function FeedbackForm() {
                 }}
                 placeholder="Например: нужно быстро подготовить PDF из таблицы с графиками"
                 required
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? errorMessageId : undefined}
               />
               <p className="hint">Минимум 10 символов. Можно оставить ссылку на пример.</p>
             </div>
           </div>
-          {error && <p className="error-text">{error}</p>}
+          {error && (
+            <p className="error-text" role="alert" id={errorMessageId} aria-live="assertive">
+              {error}
+            </p>
+          )}
           {status === "success" ? (
-            <p className="success-text">Спасибо! Мы ответим на email в течение рабочего дня.</p>
+            <p className="success-text" role="status" aria-live="polite" id={statusMessageId}>
+              Спасибо! Мы ответим на email в течение рабочего дня.
+            </p>
           ) : (
             <div className="feedback-actions">
               <Button disabled={isSubmitDisabled} type="submit" variant="default">

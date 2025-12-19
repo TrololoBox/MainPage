@@ -2,8 +2,8 @@ import { FeatureFlags } from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
-export async function fetchFeatureFlags(): Promise<FeatureFlags> {
-  const response = await fetch(`${API_BASE_URL}/feature-flags`);
+export async function fetchFeatureFlags(signal?: AbortSignal): Promise<FeatureFlags> {
+  const response = await fetch(`${API_BASE_URL}/feature-flags`, { signal });
 
   if (!response.ok) {
     throw new Error(`Failed to load feature flags: ${response.status}`);

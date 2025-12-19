@@ -5,4 +5,6 @@ export interface FeatureFlagContextValue {
   isLoading: boolean;
   lastUpdated?: Date;
   isEnabled: (key: string) => boolean;
+  error: string | null;
+  reload: () => void;
 }

@@ -1,4 +1,4 @@
-import { PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { fetchFeatureFlags } from "./api";
 import { defaultFeatureFlags } from "./config";
@@ -10,30 +10,39 @@ export function FeatureFlagProvider({ children }: PropsWithChildren) {
   const [flags, setFlags] = useState<FeatureFlags>(defaultFeatureFlags);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>();
+  const [error, setError] = useState<string | null>(null);
+  const abortRef = useRef<AbortController>();
+
+  const loadFeatureFlags = useCallback(async (signal?: AbortSignal) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const remoteFlags = await fetchFeatureFlags(signal);
+      setFlags((current) => ({ ...current, ...remoteFlags }));
+      setLastUpdated(new Date());
+    } catch (err) {
+      if (signal?.aborted) return;
+      console.warn("Feature flags fallback to defaults", err);
+      setError("Не удалось загрузить фичефлаги. Используем значения по умолчанию.");
+    } finally {
+      if (!signal?.aborted) setIsLoading(false);
+    }
+  }, []);
+
+  const startLoadingFlags = useCallback(() => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    loadFeatureFlags(controller.signal);
+  }, [loadFeatureFlags]);
 
   useEffect(() => {
-    let isMounted = true;
-
-    async function loadFeatureFlags() {
-      setIsLoading(true);
-      try {
-        const remoteFlags = await fetchFeatureFlags();
-        if (!isMounted) return;
-        setFlags((current) => ({ ...current, ...remoteFlags }));
-        setLastUpdated(new Date());
-      } catch (error) {
-        console.warn("Feature flags fallback to defaults", error);
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    }
-
-    loadFeatureFlags();
+    startLoadingFlags();
 
     return () => {
-      isMounted = false;
+      abortRef.current?.abort();
     };
-  }, []);
+  }, [startLoadingFlags]);
 
   const isEnabled = useCallback((key: string) => Boolean(flags[key]), [flags]);
 
@@ -43,8 +52,10 @@ export function FeatureFlagProvider({ children }: PropsWithChildren) {
       isLoading,
       lastUpdated,
       isEnabled,
+      error,
+      reload: startLoadingFlags,
     }),
-    [flags, isLoading, isEnabled, lastUpdated],
+    [flags, isLoading, isEnabled, lastUpdated, error, startLoadingFlags],
   );
 
   return <FeatureFlagContext.Provider value={value}>{children}</FeatureFlagContext.Provider>;
