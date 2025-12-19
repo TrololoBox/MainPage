@@ -14,6 +14,9 @@ export function NewsletterForm() {
   const [status, setStatus] = useState<FormState>("idle");
   const [error, setError] = useState("");
 
+  const errorMessageId = "newsletter-error";
+  const statusMessageId = "newsletter-status";
+
   const isSubmitDisabled = useMemo(
     () => status === "submitting" || !email.includes("@") || (name && name.trim().length < 2),
     [email, name, status],
@@ -32,9 +35,13 @@ export function NewsletterForm() {
       });
 
       if (!response.ok) {
-        const body = await response.json();
-        const fieldError = body?.detail ?? "Не удалось подписаться. Попробуйте ещё раз.";
-        setError(fieldError);
+        try {
+          const body = await response.json();
+          const fieldError = body?.detail ?? "Не удалось подписаться. Попробуйте ещё раз.";
+          setError(fieldError);
+        } catch {
+          setError("Сервис временно недоступен. Попробуйте отправить форму позже.");
+        }
         setStatus("error");
         return;
       }
@@ -56,7 +63,7 @@ export function NewsletterForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="feedback-form" onSubmit={handleSubmit}>
+        <form className="feedback-form" onSubmit={handleSubmit} aria-busy={status === "submitting"}>
           <div className="grid gap-3">
             <div className="form-field">
               <Label htmlFor="newsletter-email">Email</Label>
@@ -71,6 +78,8 @@ export function NewsletterForm() {
                 }}
                 placeholder="you@example.com"
                 required
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? errorMessageId : undefined}
               />
             </div>
             <div className="form-field">
@@ -84,12 +93,25 @@ export function NewsletterForm() {
                   setError("");
                 }}
                 placeholder="Как к вам обращаться"
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? errorMessageId : undefined}
               />
             </div>
           </div>
-          {error && <p className="error-text">{error}</p>}
+          {error && (
+            <p className="error-text" role="alert" id={errorMessageId} aria-live="assertive">
+              {error}
+            </p>
+          )}
           {status === "success" ? (
-            <p className="success-text">Готово! Проверьте почту — первое письмо уже в пути.</p>
+            <p
+              className="success-text"
+              role="status"
+              aria-live="polite"
+              id={statusMessageId}
+            >
+              Готово! Проверьте почту — первое письмо уже в пути.
+            </p>
           ) : (
             <div className="feedback-actions">
               <Button disabled={isSubmitDisabled} type="submit" variant="default">

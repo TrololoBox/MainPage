@@ -305,7 +305,10 @@ function DevTests({ priceMonth }: { priceMonth: number }) {
         </div>
         <ul>
           {results.map((r, i) => (
-            <li key={i} style={{ display: "flex", alignItems: "center", gap: 8, margin: "6px 0" }}>
+            <li
+              key={`${r.name}-${i}`}
+              style={{ display: "flex", alignItems: "center", gap: 8, margin: "6px 0" }}
+            >
               <span
                 style={{
                   display: "inline-flex",
@@ -360,7 +363,12 @@ export default function ProstoKitHome() {
   const [signinOpen, setSigninOpen] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [yearly, setYearly] = useState(false);
-  const { isLoading: featureFlagsLoading, lastUpdated: featureFlagsUpdatedAt } = useFeatureFlags();
+  const {
+    isLoading: featureFlagsLoading,
+    lastUpdated: featureFlagsUpdatedAt,
+    error: featureFlagsError,
+    reload: reloadFeatureFlags,
+  } = useFeatureFlags();
   const newsletterEnabled = useFeatureFlag("newsletter_form");
   const feedbackEnabled = useFeatureFlag("feedback_form");
   const betaBannerEnabled = useFeatureFlag("beta_tools_banner");
@@ -563,12 +571,27 @@ export default function ProstoKitHome() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    {featureFlagsLoading ? (
-                      <Skeleton className="h-6 w-48" />
-                    ) : (
-                      <p style={{ color: secondary, fontSize: 12 }}>
-                        Флаги обновлены: {featureFlagsUpdatedAt?.toLocaleString() ?? "только что"}
-                      </p>
+                    <div role="status" aria-live="polite">
+                      {featureFlagsLoading ? (
+                        <Skeleton className="h-6 w-48" aria-hidden />
+                      ) : featureFlagsError ? (
+                        <p style={{ color: secondary, fontSize: 12 }}>
+                          {featureFlagsError}
+                        </p>
+                      ) : (
+                        <p style={{ color: secondary, fontSize: 12 }}>
+                          Флаги обновлены: {featureFlagsUpdatedAt?.toLocaleString() ?? "только что"}
+                        </p>
+                      )}
+                    </div>
+                    {featureFlagsError && (
+                      <Button
+                        variant="ghost"
+                        onClick={reloadFeatureFlags}
+                        aria-label="Повторить попытку загрузки фичефлагов"
+                      >
+                        Обновить
+                      </Button>
                     )}
                     <Button variant="outline" onClick={() => track("beta_flag_cta", { feature: "batch_compress" })}>
                       Записаться в бета
@@ -664,7 +687,11 @@ export default function ProstoKitHome() {
                   </CardHeader>
                   <CardContent>
                     <ul style={{fontSize:14, color: secondary, display:'grid', gap:6}}>
-                      {tool.bullets.map((b, i)=>(<li key={i} style={{display:'flex',gap:8,alignItems:'flex-start'}}><Check size={16} color={accent}/>{b}</li>))}
+                      {tool.bullets.map((b) => (
+                        <li key={`${tool.id}-${b}`} style={{display:'flex',gap:8,alignItems:'flex-start'}}>
+                          <Check size={16} color={accent}/>{b}
+                        </li>
+                      ))}
                     </ul>
                     <div className="flex items-center justify-between" style={{ marginTop:12 }}>
                       <div style={{ fontSize:12, color: secondary }}>Теги: {tool.tags.join(", ")}</div>
@@ -694,8 +721,8 @@ export default function ProstoKitHome() {
                 marginTop: 24,
               }}
             >
-              {content.how.steps.map((s, i) => (
-                <Card key={i}>
+              {content.how.steps.map((s, index) => (
+                <Card key={s.title}>
                   <CardContent>
                     <div
                       style={{
@@ -712,7 +739,7 @@ export default function ProstoKitHome() {
                       {s.icon}
                     </div>
                     <h3 style={{ marginTop: 12, fontSize: 20, fontWeight: 500 }}>
-                      {i + 1}. {s.title}
+                      {index + 1}. {s.title}
                     </h3>
                     <p style={{ marginTop: 6, fontSize: 14, color: secondary }}>{s.desc}</p>
                   </CardContent>
@@ -734,8 +761,8 @@ export default function ProstoKitHome() {
                 marginTop: 16,
               }}
             >
-              {content.benefits.map((b, i) => (
-                <Card key={i}>
+              {content.benefits.map((b) => (
+                <Card key={b.title}>
                   <CardContent>
                     <div
                       style={{
@@ -1020,9 +1047,9 @@ export default function ProstoKitHome() {
           <div className="container">
             <h2>FAQ</h2>
             <Accordion type="single" collapsible className="">
-              {content.faq.map((f, i) => (
-                <AccordionItem key={i} value={"item-" + i} className="">
-                  <AccordionTrigger data-parent={"item-" + i} className="">
+              {content.faq.map((f) => (
+                <AccordionItem key={f.q} value={`item-${f.q}`} className="">
+                  <AccordionTrigger data-parent={`item-${f.q}`} className="">
                     {f.q}
                   </AccordionTrigger>
                   <AccordionContent>
