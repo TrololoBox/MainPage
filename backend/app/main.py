@@ -13,7 +13,12 @@ Base.metadata.create_all(bind=engine)
 
 settings = get_settings()
 setup_logging(settings.log_level)
-app = FastAPI(title="Excursion Consent API")
+app = FastAPI(
+    title="Excursion Consent API",
+    docs_url="/docs" if settings.environment == "dev" else None,
+    redoc_url=None,
+    openapi_url="/openapi.json" if settings.environment == "dev" else None,
+)
 setup_metrics(app)
 tracer_provider = setup_tracing(app, settings)
 setup_exception_handlers(app)

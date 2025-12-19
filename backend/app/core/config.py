@@ -22,6 +22,7 @@ class Settings:
     redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     cache_ttl_seconds: int = int(os.getenv("CACHE_TTL_SECONDS", "60"))
     feature_flags: Dict[str, bool] = None
+    environment: str = os.getenv("ENVIRONMENT", "dev")
 
     def __post_init__(self):
         self.feature_flags = self._parse_feature_flags(os.getenv("FEATURE_FLAGS"))
@@ -69,6 +70,13 @@ class Settings:
     def validate_pdf_storage_root(cls, value: str) -> str:  # noqa: N805
         if not value.strip():
             raise ValueError("PDF_STORAGE_ROOT must not be empty")
+        return value
+
+    @validator("environment")
+    def validate_environment(cls, value: str) -> str:  # noqa: N805
+        allowed = {"dev", "stage", "prod"}
+        if value not in allowed:
+            raise ValueError(f"ENVIRONMENT must be one of {', '.join(sorted(allowed))}")
         return value
 
     @validator("access_token_expire_minutes", "reminder_hours", "cache_ttl_seconds")

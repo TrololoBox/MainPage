@@ -2,8 +2,19 @@ import json
 from typing import Any, Iterable
 
 from prometheus_client import Counter
-from redis import Redis
-from redis.exceptions import RedisError
+
+try:
+    from redis import Redis
+    from redis.exceptions import RedisError
+
+    REDIS_AVAILABLE = True
+except ImportError:  # pragma: no cover - optional dependency for local dev
+    Redis = Any  # type: ignore
+    REDIS_AVAILABLE = False
+
+    class RedisError(Exception):
+        """Fallback error class when redis package is unavailable."""
+
 
 from app.core.config import get_settings
 
@@ -20,6 +31,8 @@ cache_misses = Counter(
 
 def get_cache_client() -> Redis | None:
     global _cache_client
+    if not REDIS_AVAILABLE:
+        return None
     if _cache_client is not None:
         return _cache_client
 

@@ -19,3 +19,14 @@ uvicorn app.main:app --reload
 ## Короткая сводка API
 - `POST /feedback` — принимает имя, email и сообщение, сохраняет заявку.
 - `POST /newsletter` — подписка на рассылку по email (отдает 409 при повторе).
+
+## Документация API
+
+- В dev-окружении Swagger UI доступен по адресу `/docs`.
+- Статический OpenAPI-файл можно сгенерировать командой:
+
+```bash
+ENVIRONMENT=dev PYTHONPATH=backend python backend/scripts/generate_openapi.py
+```
+
+Схема сохраняется в `backend/docs/openapi.json` и содержит примеры payload'ов.
